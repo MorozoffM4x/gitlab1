@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/MorozoffM4x/gitlab1.svg?branch=main)](https://travis-ci.org/MorozoffM4x/gitlab1)
 # Технология разработки программного обеспечения
 # Лабораторная работа №1: создание микросервиса на Spring Boot с базой данных
 ## Морозов Максим Евгеньевич, Группа 3МБД2001
