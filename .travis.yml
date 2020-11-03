@@ -1,4 +1,4 @@
-dist: gitlab1 # репозиторий внутри travis
+dist: trusty # репозиторий внутри travis
 jdk: oraclejdk8
 language: java
 services:
