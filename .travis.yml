@@ -6,3 +6,25 @@ services:
   - docker
 before_install:
   - chmod +x mvnw
+env:
+      global:
+        - secure: "ZPDqYVtubu6I0aoIyHWgasMI59Q2A4mEMsLS6tIPh7xCBKLZWmlCEfqIh2JHqamyrGdCU0ncGl280lwF0/CGmKDiwWikmN8sOwWhofodCAWJiA6s2gAfUgG3Zwp15pjTuu2si2xxm3e89vGTNs8Sne67TMKG5b/zmnkTWGY0SQdHfd3GRIBZWx1wFZDZK2YuJ6+AQkXyV9JZzthxj9Dz4liTZQbNBSb3sIcRfJMP0CzcsvdPnW9EZAmjkNfD7Wg6XE0f6mCgrtYSUY1Fu1VL+ND2+DC0PqaA3hnGya9oTuVQHpGfjmpXLZt1wtG/Xo6jxZlWzMWvzIKCOFbB8JrkZtfkXG182i1EJOm/bQDDYkCW9IUYfIu8r7YSGOKDpsfaZZZhFEx/qnjMBr1WwcZL6HtWb9JFRsXWQENIi/pypxnooHcFTzb5BLaENpvhfV4G5eVkHlbj+GUfC2Wdk0kWim6/LdS8lLQQnQ6AKAqANpDMjhZ6fQcekwkgH1WPSoEyqpCWyJ+PbD4yXaBjhNkMt/dNuUVTPN0fwaNHVevsgA5S7MhOeCoYYpUJYK2QeFpXzgEta3GPu0K4JXLE/UWQiWSL0ibOQ+LP6VFD4v7psjLOnR2zxa02v7f1iydDbPL/q/CHpQcAqaC5/sTg1+9k22oXyBo24P2E1MK1PxOl58E="
+        - secure: "bjFvdjCxhbM4JAvVn5E7QrZn/EbmsfItxCK3HVEX0buXxS9t+k1GWIeuuZI8lLjgtYWz3fnrOOmsp9zbyCChKrdzEIdDam64PbYGQxrId0h9NteRbABIQWsFkoU1R2KHSPzBnUjxZ9jlfQblZzT9dqYpAHfqjfJ0YHJDmK1ps0r/XCNgS7GBz0y+9Ft64Ite4g5KEhNMS/3tIF20QzKHmWdgKottpbw3g/CfhZNHlEVklkG1ZkCWF2WjS/x4elcXzqJEmuwWk8DAQyO6B/Lxrimt91GsjPnu6ntn6Mo0JJQf/RT6zzRY/TkPlNCzH6HB2DF60b3p8Cyfvxi8CzOf7w+NGf3I21TzfNFYSWPlIeoOft8E/Rn1wGmXrLaiTlWMId9cEyz61BgpL76EJloaAadMnNsd5p9oIDHIz7dGKLufb6MR+rVPCry93tQ5v01PQKRUC5yeIUoYVVZwzPDIFAjArNa8VLkj+nS94eEvVRL7c6+VRAQvU7UA/ye9AIOO83fxCwht+k6VidGctf/YzcVwpyxdziqW/JR1HZAOPjT7U5nCwpXylTBZPeD9jaVDEqFOizCeYsniO8w0NdiSJK1aNmc3M783y1NbU1Anw5xHaFiXIvJdXCH6WL7eFXWeH035vvRGmIFbNNjDJLVdFPWeyfSeW7ZekOyCJafDGds="
+        - secure: "ASgiUBCZHhhtSXG7Pl5bY9NaaRyAicTufNG31v1SvpEmoKELCSUfoAy+p04hEnJwoYQcXDEBr8VInDwKVQ7DKYTh8BwbuDp/YvBAHvBkp6irJGgNZF0PTQ14Dg8ko7P9+60oVLd1jgTLT1vsY5eTeK1y7r2dQDu0UePHsioIeCOnqz3woYyJZdr7n/gzA5zYgXm+W4b2fyJv7MFoZAjq3W9o9x/BhyacWOrCCKfrHEFoa8VlKMndpbIzgsUSdWODfWkPwxnnGfAQCyGGRYdgLqhAjlIy0zwTsmFfyYWiuHpqu4ZVpph/pTDEEzyidrmyfKyOS/L7bc5iGTkpwcVgxAT5KiSIFur6KcqVDYhZF/xdJWnaf/UC1C41t1uxyyP+eN4gx3RQpbzjG1DSIrYdY3keeEYFSgWYR1i9I7ddHO1/tbmq6MXgU05j3kVq2TAaid4iyFaHwqiuf+lucVFJALbcgbx5rAq99Wt7+Mybh7kCD+nvkSWoN14LDK/HPAolXwRuB0ib5HZJZ9GhW9Wt7ajnkvJ2KMSZs8fuJb6pzOhmBBabXYGOSH8ihjoiYlzpWuuVO7WYmWADOjG3/z7XSx3zIyiswrWhkxW7cT9NdWH/wlDsehvdayKSG6NENXVafY4+vSnXBL63IRX96BoLndWr8KT8kVNTCSLntF0WGx8="
+        - COMMIT=${TRAVIS_COMMIT::7}
+
+script:
+        - ./mvnw clean install -B
+
+      after_success:
+        - docker login -u $DOCKER_USER -p $DOCKER_PASS
+        - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo "$TRAVIS_BRANCH"; fi`
+        - export IMAGE_NAME=morozoff/my-lab-1-3
+        - docker build -t $IMAGE_NAME:latest .
+        - docker tag $IMAGE_NAME:latest $IMAGE_NAME:$TAG
+        - docker push $IMAGE_NAME:$TAG
+
+      deploy:
+        provider: heroku
+        api_key: $HEROKU_API_KEY
+        app: morozoff-lab1
